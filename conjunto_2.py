@@ -9,6 +9,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.datasets import make_circles
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -18,24 +19,27 @@ from utils import euclidian, plot_plain_separator
 random_seed = 42
 random.seed(random_seed)
 np.random.seed(random_seed)
+dataset_name="Circles"
 
 #%% Generate classes
 
 print('Generating classes')
 
-samples = 800
+samples = 1200
 features = 2
 
-class_1 = np.random.normal(2, 3, [samples, features])
-class_2 = np.random.normal(8, 3, [samples, features])
+x, y = make_circles(n_samples=samples, noise=0.25, factor=0.5)
 
-x = np.concatenate([class_1, class_2]) 
-y = np.concatenate(([0 for _ in range(samples)], [1 for _ in range(samples)]))
+reds = y == 0
+blues = y == 1
+
+plt.scatter(x[reds, 0], x[reds, 1], c="red",s=20, edgecolor='k')
+plt.scatter(x[blues, 0], x[blues, 1], c="blue",s=20, edgecolor='k')
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=random_seed)
 
-plt.scatter(class_1[:,0], class_1[:,1])
-plt.scatter(class_2[:,0], class_2[:,1])
+#plt.scatter(class_1[:,0], class_1[:,1])
+#plt.scatter(class_2[:,0], class_2[:,1])
 
 #%% Perceptron
 
@@ -136,7 +140,7 @@ print(classification_report(y_test, y_pred))
 print('Saving latex tables')
 
 cm = confusion_matrix(y_test, y_pred)
-test_name='Treinamento sem Ajuste Conjunto Demonstrativo'
+test_name=f'Treinamento sem Ajuste {dataset_name}'
 table_confusion = r"""
 \begin{{table}}[H]
 \centering
@@ -187,12 +191,12 @@ with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 
 print('Saving plot for model without adjustment')
 
 plt.clf()
-class_1_old = x_train[y_train==0]
-class_2_old = x_train[y_train==1]
 
-plt.scatter(class_1_old[:,0], class_1_old[:,1])
-plt.scatter(class_2_old[:,0], class_2_old[:,1])
-plot_plain_separator(model, x, save='reta_nao_ideal')
+reds = y_train == 0
+blues = y_train == 1
+plt.scatter(x_train[reds, 0], x_train[reds, 1], c="red",s=20, edgecolor='k')
+plt.scatter(x_train[blues, 0], x_train[blues, 1], c="blue",s=20, edgecolor='k')
+plot_plain_separator(model, x, grid_range=(-2, 2), save='circles_nao_ideal')
 
 #%% Get distance matrix
 
@@ -213,7 +217,7 @@ plot_plain_separator(model, x, save='reta_nao_ideal')
 
 print('Performing ajustment with KNN')
 
-classifier = KNeighborsClassifier(n_neighbors=10)
+classifier = KNeighborsClassifier(n_neighbors=15)
 
 y_classes = []
 for index in range(x_train.shape[0]):
@@ -223,8 +227,6 @@ for index in range(x_train.shape[0]):
     y_classes.append(classifier.predict([x_train[index]])[0])
 
 errors = y_train - y_classes
-print(confusion_matrix(y_train, y_classes))
-print(classification_report(y_train, y_classes))
 
 wrong_classes = np.where(errors != 0)[0]
 
@@ -265,7 +267,7 @@ print(classification_report(y_test, y_pred))
 print('Saving latex tables for model adjusted')
 
 cm = confusion_matrix(y_test, y_pred)
-test_name='Treinamento com Ajuste Conjunto Demonstrativo'
+test_name=f'Treinamento com Ajuste {dataset_name}'
 table_confusion = r"""
 \begin{{table}}[H]
 \centering
@@ -316,10 +318,9 @@ with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 
 print('Saving figure for model adjusted')
 
 plt.clf()
-class_1_new = x_train[y_train==0]
-class_2_new = x_train[y_train==1]
-
-plt.scatter(class_1_new[:,0], class_1_new[:,1])
-plt.scatter(class_2_new[:,0], class_2_new[:,1])
-plot_plain_separator(model, x, save='reta_ajustada')
+reds = y_train == 0
+blues = y_train == 1
+plt.scatter(x_train[reds, 0], x_train[reds, 1], c="red",s=20, edgecolor='k')
+plt.scatter(x_train[blues, 0], x_train[blues, 1], c="blue",s=20, edgecolor='k')
+plot_plain_separator(model, x, grid_range=(-2, 2), save='circles_ajustada')
 

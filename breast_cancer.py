@@ -6,9 +6,10 @@ Created on Mon Sep 23 19:22:55 2019
 """
 
 from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.datasets import load_breast_cancer
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -23,19 +24,8 @@ np.random.seed(random_seed)
 
 print('Generating classes')
 
-samples = 800
-features = 2
-
-class_1 = np.random.normal(2, 3, [samples, features])
-class_2 = np.random.normal(8, 3, [samples, features])
-
-x = np.concatenate([class_1, class_2]) 
-y = np.concatenate(([0 for _ in range(samples)], [1 for _ in range(samples)]))
-
+x, y = load_breast_cancer(return_X_y=True)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=random_seed)
-
-plt.scatter(class_1[:,0], class_1[:,1])
-plt.scatter(class_2[:,0], class_2[:,1])
 
 #%% Perceptron
 
@@ -136,7 +126,7 @@ print(classification_report(y_test, y_pred))
 print('Saving latex tables')
 
 cm = confusion_matrix(y_test, y_pred)
-test_name='Treinamento sem Ajuste Conjunto Demonstrativo'
+test_name='Treinamento sem Ajuste Breast Cancer'
 table_confusion = r"""
 \begin{{table}}[H]
 \centering
@@ -181,33 +171,6 @@ Camada de saída & {norm_weights_out} \\ \hline
 
 with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 'w') as file:
     file.write(table_confusion)
-
-#%% Plot separator
-
-print('Saving plot for model without adjustment')
-
-plt.clf()
-class_1_old = x_train[y_train==0]
-class_2_old = x_train[y_train==1]
-
-plt.scatter(class_1_old[:,0], class_1_old[:,1])
-plt.scatter(class_2_old[:,0], class_2_old[:,1])
-plot_plain_separator(model, x, save='reta_nao_ideal')
-
-#%% Get distance matrix
-
-#distance_matrix = np.zeros((x.shape[0], x.shape[0]))
-#
-#for sample_a in range(x.shape[0]):
-#    
-#    if sample_a > 0 and sample_a % int(0.1 * x.shape[0]) == 0:
-#        print(f'Progress: {sample_a / int(0.1 * x.shape[0]) * 10} % '
-#              f'({sample_a} samples from {x.shape[0]} total samples)')
-#    
-#    for sample_b in range(x.shape[0]):
-#        distance_matrix[sample_a, sample_b] = euclidian(x[sample_a], x[sample_b])
-#
-#classes = list(Counter(y).keys())
 
 #%% Use KNN to find unsure samples
 
@@ -265,7 +228,7 @@ print(classification_report(y_test, y_pred))
 print('Saving latex tables for model adjusted')
 
 cm = confusion_matrix(y_test, y_pred)
-test_name='Treinamento com Ajuste Conjunto Demonstrativo'
+test_name='Treinamento com Ajuste Breast Cancer'
 table_confusion = r"""
 \begin{{table}}[H]
 \centering
@@ -310,16 +273,4 @@ Camada de saída & {norm_weights_out} \\ \hline
 
 with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 'w') as file:
     file.write(table_confusion)
-
-#%% Plot separator
-
-print('Saving figure for model adjusted')
-
-plt.clf()
-class_1_new = x_train[y_train==0]
-class_2_new = x_train[y_train==1]
-
-plt.scatter(class_1_new[:,0], class_1_new[:,1])
-plt.scatter(class_2_new[:,0], class_2_new[:,1])
-plot_plain_separator(model, x, save='reta_ajustada')
 

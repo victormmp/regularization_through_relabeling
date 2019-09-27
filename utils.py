@@ -26,7 +26,7 @@ def euclidian(a, b):
     return np.sqrt(np.sum(np.power(x - y, 2)))
 
 
-def plot_plain_separator(model, x, grid_size=1000, grid_range=(-5, 15), save=None):
+def plot_plain_separator(model, x, grid_size=1000, grid_range=(-5, 15), save=None, path=r'..\Artigo_1_RNA\Imagens'):
     x_lab = np.linspace(grid_range[0], grid_range[1], num=grid_size)
     y_lab = np.linspace(grid_range[0], grid_range[1], num=grid_size)
     x1, x2 = np.meshgrid(x_lab, y_lab)
@@ -37,5 +37,5 @@ def plot_plain_separator(model, x, grid_size=1000, grid_range=(-5, 15), save=Non
     z = z.reshape([1000,1000])
     plt.contour(x1, x2, z, levels=[0], colors=('black',), linewidths=(2,))
     if save:
-        plt.savefig(fr'C:\Users\victo\Documents\Works\Artigo_1_RNA\Imagens\{save}.png')
+        plt.savefig(fr'{path}\{save}.png')
         
