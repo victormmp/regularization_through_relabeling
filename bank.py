@@ -6,28 +6,42 @@ Created on Mon Sep 23 19:22:55 2019
 """
 
 from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_validate, ShuffleSplit
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.datasets import load_digits
+from sklearn.datasets import make_gaussian_quantiles
 import numpy as np
+import matplotlib.pyplot as plt
 import random
+import os
+from os.path import join
+from collections import Counter
+import csv
+
+from utils import euclidian, plot_plain_separator
 
 random_seed = 42
 random.seed(random_seed)
 np.random.seed(random_seed)
-dataset_name="Digits"
+dataset_name="Bank"
 
 #%% Generate classes
 
 print('Generating classes')
 
-x, y = load_digits(return_X_y=True, n_class=5)
+x, y = [], []
+with open(join('custom_datasets', 'data_banknote_authentication.txt')) as file:
+    reader = csv.reader(file)
+    for row in reader:
+        x.append(row[0:-1])
+        y.append(row[-1])
+
+x = np.array(x, dtype=np.float32)
+y = np.array(y, dtype=np.int16)
+
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.4, random_state=random_seed)
+y_train_backup = y_train
 
-#%% Perceptron
-
-#TODO: Inserir Perceptron pra mostrar separação ideal
 
 #%% Define model for classification
 
@@ -35,7 +49,7 @@ print('Building model')
 # Do not interrupt the training before end of the epochs, to force an 
 # overfitting
 
-n_epochs=50000
+n_epochs=10000
 
 model_1 = {
         'hidden_layer_sizes': (500,),
@@ -84,7 +98,7 @@ model_4 = {
         'max_iter': n_epochs,
         'random_state': random_seed,
         'tol':1e-12,
-        'verbose': False,
+        'verbose': True,
         'n_iter_no_change': n_epochs
         }
 
@@ -113,11 +127,6 @@ print(f'[RESULT]\nScore Train = {score_train:0.4f}'
 y_pred = model.predict(x_test)
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
-
-#%%
-#ss = ShuffleSplit(n_splits=5, test_size=0.3, random_state=random_seed)
-#cv_results = cross_validate(model, x, y, cv=ss, n_jobs = 6, verbose=2, return_train_score=True)
-#print(cv_results)
 
 #%% Save result tables as Latex format
 
@@ -167,7 +176,7 @@ Camada de saída & {norm_weights_out} \\ \hline
     norm_weights_out=norm_weights_out
 )
 
-with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 'w') as file:
+with open(join('..', 'Artigo_1_RNA', 'tables', fr'{"_".join(test_name.lower().split())}.txt'), 'w') as file:
     file.write(table_confusion)
 
 #%% Use KNN to find unsure samples
@@ -184,22 +193,13 @@ for index in range(x_train.shape[0]):
     y_classes.append(classifier.predict([x_train[index]])[0])
 
 errors = y_train - y_classes
-print(confusion_matrix(y_train, y_classes))
-print(classification_report(y_train, y_classes))
 
 wrong_classes = np.where(errors != 0)[0]
 
 print('Fixing training samples with adjustment')
+
 y_train = y_classes
 
-#for i in wrong_classes:
-#    y_train[i] = 0 if y_train[i] == 1 else 1
-
-#%%
-#x_h = np.concatenate([x_train, x_test])
-#y_h = np.concatenate([y_train, y_test])
-#cv_results_2 = cross_validate(model, x_h, y_h, cv=3, n_jobs = 4, verbose=4, return_train_score=True)
-#print(cv_results)
 
 #%% Retrain
     
@@ -270,6 +270,5 @@ Camada de saída & {norm_weights_out} \\ \hline
     norm_weights_out=norm_weights_out
 )
 
-with open(fr'..\Artigo_1_RNA\tables\{"_".join(test_name.lower().split())}.txt', 'w') as file:
+with open(join('..', 'Artigo_1_RNA', 'tables', fr'{"_".join(test_name.lower().split())}.txt'), 'w') as file:
     file.write(table_confusion)
-

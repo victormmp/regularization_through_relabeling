@@ -238,8 +238,10 @@ wrong_classes = np.where(errors != 0)[0]
 
 print('Fixing training samples with adjustment')
 
-for i in wrong_classes:
-    y_train[i] = 0 if y_train[i] == 1 else 1
+y_train = y_classes
+
+#for i in wrong_classes:
+#    y_train[i] = 0 if y_train[i] == 1 else 1
 
 #%%
 #x_h = np.concatenate([x_train, x_test])

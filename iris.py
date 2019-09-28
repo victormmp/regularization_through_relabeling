@@ -133,8 +133,9 @@ table_confusion = r"""
 \begin{{tabular}}{{cc}}
 \hline
 \multicolumn{{2}}{{c}}{{ Matriz de Confusão para {test_name} }} \\ \hline
-{tp} & {fp} \\
-{fn} & {tn} \\ \hline
+{tp} & {fp} & {fp2}\\
+{fn} & {tn} & {fp3}\\ 
+{fn3} & {fn4} & {tn2}\hline
 \end{{tabular}}
 \end{{table}}
 
@@ -160,6 +161,11 @@ Camada de saída & {norm_weights_out} \\ \hline
     fp=cm[0,1],
     fn=cm[1,0],
     tn=cm[1,1],
+    fp2=cm[0,2],
+    fp3=cm[1,2],
+    fn3=cm[2,0],
+    fn4=cm[2,1],
+    tn2=cm[2,2],
     score_train=score_train,
     score_test=score_test,
     score_ratio=score_test/score_train,
@@ -191,8 +197,10 @@ wrong_classes = np.where(errors != 0)[0]
 
 print('Fixing training samples with adjustment')
 
-for i in wrong_classes:
-    y_train[i] = 0 if y_train[i] == 1 else 1
+y_train = y_classes
+
+#for i in wrong_classes:
+#    y_train[i] = y_classes[i]
 
 #%%
 #x_h = np.concatenate([x_train, x_test])
@@ -235,8 +243,9 @@ table_confusion = r"""
 \begin{{tabular}}{{cc}}
 \hline
 \multicolumn{{2}}{{c}}{{ Matriz de Confusão para {test_name} }} \\ \hline
-{tp} & {fp} \\
-{fn} & {tn} \\ \hline
+{tp} & {fp} & {fp2}\\
+{fn} & {tn} & {fp3}\\ 
+{fn3} & {fn4} & {tn2}\hline
 \end{{tabular}}
 \end{{table}}
 
@@ -262,6 +271,11 @@ Camada de saída & {norm_weights_out} \\ \hline
     fp=cm[0,1],
     fn=cm[1,0],
     tn=cm[1,1],
+    fp2=cm[0,2],
+    fp3=cm[1,2],
+    fn3=cm[2,0],
+    fn4=cm[2,1],
+    tn2=cm[2,2],
     score_train=score_train,
     score_test=score_test,
     score_ratio=score_test/score_train,
