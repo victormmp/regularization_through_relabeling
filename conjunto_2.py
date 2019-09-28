@@ -217,7 +217,7 @@ plot_plain_separator(model, x, grid_range=(-2, 2), save='circles_nao_ideal')
 
 print('Performing ajustment with KNN')
 
-classifier = KNeighborsClassifier(n_neighbors=15)
+classifier = KNeighborsClassifier(n_neighbors=10)
 
 y_classes = []
 for index in range(x_train.shape[0]):
